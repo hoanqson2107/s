@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Fake Human Activity (Safe)
+// @name         Script Treo Website 
 // @namespace    https://tampermonkey.net/
-// @version      1.0
-// @description  Giả lập hành động người dùng để tránh timeout / mất key
+// @version      3.0
+// @description  Giả lập hành động người dùng để tránh timeout
 // @match        https://studio.firebase.google.com/*
 // @grant        none
 // ==/UserScript==
