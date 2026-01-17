@@ -1,40 +1,48 @@
 // ==UserScript==
-// @name         Script Treo Website 
+// @name         Fake Human Activity (Safe)
 // @namespace    https://tampermonkey.net/
-// @version      2.0
-// @description  Giả lập hành động người dùng để tránh timeout
+// @version      1.0
+// @description  Giả lập hành động người dùng để tránh timeout / mất key
 // @match        https://studio.firebase.google.com/*
 // @grant        none
 // ==/UserScript==
 
-
 (function () {
     'use strict';
-    console.log('UserScript is running');
-    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-    function fakeOnce() {
-        const r = Math.random();
+    console.log('[SCRIPT] active');
+    const rand = (min, max) => Math.random() * (max - min) + min;
 
-        if (r < 0.6) {
-            // mousemove cực nhẹ
-            document.dispatchEvent(
-                new MouseEvent('mousemove', {
-                    clientX: rand(5, 40),
-                    clientY: rand(5, 40),
-                    bubbles: true
-                })
-            );
-        } else {
-            // scroll rất nhỏ
-            window.scrollBy(0, rand(-2, 2));
-        }
+    function fakeMouseMove() {
+        const event = new MouseEvent('mousemove', {
+            bubbles: true,
+            cancelable: true,
+            clientX: rand(0, window.innerWidth),
+            clientY: rand(0, window.innerHeight)
+        });
+        document.dispatchEvent(event);
     }
 
-    function loop() {
-        fakeOnce();
-        setTimeout(loop, rand(60000, 120000)); // 60–120 giây
+    function fakeScroll() {
+        window.scrollBy({
+            top: rand(-50, 50),
+            behavior: 'smooth'
+        });
     }
 
-    loop();
-})();  
+    function fakeKey() {
+        const event = new KeyboardEvent('keydown', {
+            bubbles: true,
+            key: 'Shift'
+        });
+        document.dispatchEvent(event);
+    }
+
+    setInterval(() => {
+        fakeMouseMove();
+
+        if (Math.random() > 0.6) fakeScroll();
+        if (Math.random() > 0.8) fakeKey();
+
+    }, rand(60000, 120000)); 
+})();
