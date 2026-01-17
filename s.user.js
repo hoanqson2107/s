@@ -10,7 +10,7 @@
 
 (function () {
     'use strict';
-
+    console.log('UserScript is running');
     const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
     function fakeOnce() {
@@ -37,4 +37,4 @@
     }
 
     loop();
-})();
+})();  
