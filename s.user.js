@@ -3,7 +3,7 @@
 // @namespace    https://tampermonkey.net/
 // @version      2.0
 // @description  Giả lập hành động người dùng để tránh timeout
-// @match        *://*/*
+// @match        https://studio.firebase.google.com/*
 // @grant        none
 // ==/UserScript==
 
