@@ -1,18 +1,21 @@
 // ==UserScript==
 // @name         Script Treo Website 
 // @namespace    https://tampermonkey.net/
-// @version      3.0
+// @version      4.0
 // @description  Giả lập hành động người dùng để tránh timeout
-// @match        https://studio.firebase.google.com/*
+// @match        *://*/*
 // @grant        none
 // ==/UserScript==
 
 (function () {
     'use strict';
+    
+    console.log('[FakeActivity] active');
 
-    console.log('[SCRIPT] active');
+    // random số trong khoảng
     const rand = (min, max) => Math.random() * (max - min) + min;
 
+    // 🖱 giả lập di chuyển chuột
     function fakeMouseMove() {
         const event = new MouseEvent('mousemove', {
             bubbles: true,
@@ -23,6 +26,7 @@
         document.dispatchEvent(event);
     }
 
+    // 📜 scroll nhẹ
     function fakeScroll() {
         window.scrollBy({
             top: rand(-50, 50),
@@ -30,6 +34,7 @@
         });
     }
 
+    // ⌨️ key vô hại
     function fakeKey() {
         const event = new KeyboardEvent('keydown', {
             bubbles: true,
@@ -38,11 +43,13 @@
         document.dispatchEvent(event);
     }
 
+    // 🔁 chạy vòng lặp an toàn
     setInterval(() => {
         fakeMouseMove();
 
         if (Math.random() > 0.6) fakeScroll();
         if (Math.random() > 0.8) fakeKey();
 
-    }, rand(60000, 120000)); 
+        
+    }, rand(60000, 120000)); // 8–15 giây
 })();
