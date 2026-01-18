@@ -4,8 +4,6 @@
 // @version      6.7
 // @description  Giả lập hành động người dùng để tránh timeout
 // @match        *://*/*
-// @run-at       document-start
-// @noframes     false
 // @grant        none
 // ==/UserScript==
 
