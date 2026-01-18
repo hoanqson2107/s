@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Script Treo Website 
 // @namespace    https://tampermonkey.net/
-// @version      4.0
+// @version      6.7
 // @description  Giả lập hành động người dùng để tránh timeout
 // @match        *://*/*
 // @grant        none
@@ -9,47 +9,71 @@
 
 (function () {
     'use strict';
-    
-    console.log('[FakeActivity] active');
 
-    // random số trong khoảng
+    console.log('[AntiTimeout VIP] Running...');
+
+    /* ===== utils ===== */
     const rand = (min, max) => Math.random() * (max - min) + min;
 
-    // 🖱 giả lập di chuyển chuột
-    function fakeMouseMove() {
-        const event = new MouseEvent('mousemove', {
+    /* ===== fake actions ===== */
+    function fakeMouse() {
+        const e = new MouseEvent('mousemove', {
             bubbles: true,
-            cancelable: true,
-            clientX: rand(0, window.innerWidth),
-            clientY: rand(0, window.innerHeight)
+            clientX: rand(10, window.innerWidth - 10),
+            clientY: rand(10, window.innerHeight - 10)
         });
-        document.dispatchEvent(event);
+        document.dispatchEvent(e);
     }
 
-    // 📜 scroll nhẹ
     function fakeScroll() {
         window.scrollBy({
-            top: rand(-50, 50),
+            top: rand(-40, 40),
             behavior: 'smooth'
         });
     }
 
-    // ⌨️ key vô hại
     function fakeKey() {
-        const event = new KeyboardEvent('keydown', {
+        const e = new KeyboardEvent('keydown', {
             bubbles: true,
             key: 'Shift'
         });
-        document.dispatchEvent(event);
+        document.dispatchEvent(e);
     }
 
-    // 🔁 chạy vòng lặp an toàn
-    setInterval(() => {
-        fakeMouseMove();
+    /* ===== audio keepalive (chống Chrome ngủ tab) ===== */
+    let audioCtx;
+    function audioPing() {
+        try {
+            audioCtx = audioCtx || new AudioContext();
+            const osc = audioCtx.createOscillator();
+            osc.frequency.value = 1;
+            osc.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.01);
+        } catch (_) {}
+    }
+
+    /* ===== main loop (KHÔNG dùng setInterval) ===== */
+    function loop() {
+        fakeMouse();
 
         if (Math.random() > 0.6) fakeScroll();
-        if (Math.random() > 0.8) fakeKey();
+        if (Math.random() > 0.75) fakeKey();
+        if (Math.random() > 0.85) audioPing();
 
-        
-    }, rand(60000, 120000)); // 8–15 giây
+        // random 2–5 phút (SIÊU NHẸ)
+        const next = rand(120000, 300000);
+        setTimeout(loop, next);
+    }
+
+    loop();
+
+    /* ===== khi quay lại tab ===== */
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            fakeKey();
+            audioPing();
+        }
+    });
+
 })();
