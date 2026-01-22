@@ -9,7 +9,7 @@
 
 (function () {
     'use strict';
-    const RELOAD_INTERVAL = 600 * 1000;
+    const RELOAD_INTERVAL = 120 * 1000;
     setInterval(() => {
         location.reload();
     }, RELOAD_INTERVAL);
