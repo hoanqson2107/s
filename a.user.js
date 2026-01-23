@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Auto Reload Tab
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      2.0
 // @description  none
 // @match        https://studio.firebase.google.com/*
 // @grant        none
@@ -9,8 +9,32 @@
 
 (function () {
     'use strict';
-    const RELOAD_INTERVAL = 120 * 1000;
+
+    const HARD_RELOAD_INTERVAL = 10 * 60 * 1000; // 10 phút
+    const CHECK_ERROR_INTERVAL = 5 * 1000;      // 5 giây
+    let isReloading = false;
+
+    function hardReload(reason) {
+        if (isReloading) return;
+        isReloading = true;
+        console.log('[Firebase] Hard reload:', reason);
+        location.replace(location.href);
+    }
+
+    // 🔄 Hard reload định kỳ
     setInterval(() => {
-        location.reload();
-    }, RELOAD_INTERVAL);
+        hardReload('scheduled');
+    }, HARD_RELOAD_INTERVAL);
+
+    // 💥 Phát hiện lỗi socket
+    setInterval(() => {
+        const text = document.body?.innerText || '';
+        if (
+            text.includes('ERR_SOCKET_NOT_CONNECTED') ||
+            text.includes("This site can’t be reached")
+        ) {
+            hardReload('socket error');
+        }
+    }, CHECK_ERROR_INTERVAL);
+
 })();
