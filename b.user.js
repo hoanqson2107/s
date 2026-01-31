@@ -59,6 +59,7 @@
     setInterval(() => {
         console.log('[FakeActivity] Reload page (30m)');
         location.reload();
-    }, 30 * 60 * 1000);
+    }, 10 * 60 * 1000);
 
 })();
+1
