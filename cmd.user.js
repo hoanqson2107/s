@@ -1,8 +1,8 @@
-// ==UserScript==
-// @name         auto dán lệnh
+ // ==UserScript==
+// @name         auto dán lệnh (persistent timer)
 // @namespace    https://tampermonkey.net/
-// @version      1.3
-// @description  Auto chạy pm2 mỗi 30~60 phút (vô hạn)
+// @version      1.4
+// @description  Auto chạy pm2 mỗi 30~60 phút, KHÔNG reset khi reload trang
 // @author       you
 // @match        *://*/*
 // @grant        none
@@ -13,11 +13,12 @@
 
 /* ===== CONFIG ===== */
 
-// delay giữa các vòng (30 ~ 60 phút)
-const LOOP_DELAY_MIN = 30 * 60 * 1000; // 30 phút
-const LOOP_DELAY_MAX = 60 * 60 * 1000; // 60 phút
+const DELAY_MIN = 30 * 60 * 1000; // 30 phút
+const DELAY_MAX = 60 * 60 * 1000; // 60 phút
 
-/* ================= */
+const STORAGE_KEY = 'NEXT_RUN_TIME';
+
+/* ================== */
 
 function rand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -66,19 +67,41 @@ function sleep(ms) {
     return new Promise(r => setTimeout(r, ms));
 }
 
+function getNextRunTime() {
+    return Number(localStorage.getItem(STORAGE_KEY) || 0);
+}
+
+function setNextRunTime() {
+    const next = Date.now() + rand(DELAY_MIN, DELAY_MAX);
+    localStorage.setItem(STORAGE_KEY, String(next));
+    console.warn(`[CMD] Next run at ${new Date(next).toLocaleTimeString()}`);
+    return next;
+}
+
 async function mainLoop() {
-    console.warn('[CMD] Start infinite loop (30~60 phút / vòng)');
+    console.warn('[CMD] Script loaded (persistent mode)');
 
     const CMD = 'pm2 kill && pm2 start app.js --name my-app && pm2 save && pm2 start bot.js';
 
+    let nextRun = getNextRunTime();
+
+    // lần đầu chưa có mốc → tạo mốc
+    if (!nextRun) {
+        console.warn('[CMD] No schedule found → create new one');
+        nextRun = setNextRunTime();
+    }
+
     while (true) {
-        console.warn('[CMD] Run pm2 command');
-        runCommand(CMD);
+        const now = Date.now();
 
-        const delay = rand(LOOP_DELAY_MIN, LOOP_DELAY_MAX);
-        console.warn(`[CMD] Sleep ${(delay / 60000).toFixed(1)} phút`);
+        if (now >= nextRun) {
+            console.warn('[CMD] Time reached → run pm2');
+            runCommand(CMD);
+            nextRun = setNextRunTime();
+        }
 
-        await sleep(delay);
+        // check mỗi 5 giây (reload bao nhiêu lần cũng không ảnh hưởng)
+        await sleep(5000);
     }
 }
 
