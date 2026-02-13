@@ -1,8 +1,8 @@
- // ==UserScript==
-// @name         auto dán lệnh (persistent timer)
+// ==UserScript==
+// @name         auto dán lệnh
 // @namespace    https://tampermonkey.net/
-// @version      1.4
-// @description  Auto chạy pm2 mỗi 30~60 phút, KHÔNG reset khi reload trang
+// @version      1.5
+// @description  
 // @author       you
 // @match        *://*/*
 // @grant        none
