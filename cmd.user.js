@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         auto dán lệnh
 // @namespace    https://tampermonkey.net/
-// @version      1.5
-// @description  
-// @author       you
+// @version      2.0
+// @description  none
+// @author       none
 // @match        *://*/*
 // @grant        none
 // @run-at       document-idle
@@ -16,7 +16,7 @@
 const DELAY_MIN = 30 * 60 * 1000; // 30 phút
 const DELAY_MAX = 60 * 60 * 1000; // 60 phút
 
-const STORAGE_KEY = 'NEXT_RUN_TIME';
+const STORAGE_KEY = 'AUTO_PM2_SCHEDULE_V1';
 
 /* ================== */
 
@@ -27,6 +27,34 @@ function rand(min, max) {
 function terminal() {
     return document.querySelector('textarea.xterm-helper-textarea');
 }
+
+/* ===== KEYBOARD ===== */
+
+function pressCtrlBacktick() {
+    document.dispatchEvent(
+        new KeyboardEvent('keydown', {
+            key: '`',
+            code: 'Backquote',
+            keyCode: 192,
+            which: 192,
+            ctrlKey: true,
+            bubbles: true
+        })
+    );
+
+    document.dispatchEvent(
+        new KeyboardEvent('keyup', {
+            key: '`',
+            code: 'Backquote',
+            keyCode: 192,
+            which: 192,
+            ctrlKey: true,
+            bubbles: true
+        })
+    );
+}
+
+/* ==================== */
 
 function paste(el, text) {
     el.focus();
@@ -53,14 +81,21 @@ function enter(el) {
 }
 
 function runCommand(cmd) {
-    const t = terminal();
-    if (!t) {
-        console.warn('[xterm] terminal not found');
-        return false;
-    }
-    paste(t, cmd);
-    setTimeout(() => enter(t), 100);
-    return true;
+    // 1️⃣ mở / focus terminal
+    pressCtrlBacktick();
+
+    // 2️⃣ đợi terminal focus
+    setTimeout(() => {
+        const t = terminal();
+        if (!t) {
+            console.warn('[xterm] terminal not found');
+            return;
+        }
+
+        // 3️⃣ dán lệnh + enter
+        paste(t, cmd);
+        setTimeout(() => enter(t), 100);
+    }, 300);
 }
 
 function sleep(ms) {
@@ -79,28 +114,25 @@ function setNextRunTime() {
 }
 
 async function mainLoop() {
-    console.warn('[CMD] Script loaded (persistent mode)');
+    console.warn('[CMD] Script loaded (persistent + ctrl+`)');
 
     const CMD = 'pm2 kill && pm2 start app.js --name my-app && pm2 save && pm2 start bot.js';
 
     let nextRun = getNextRunTime();
 
-    // lần đầu chưa có mốc → tạo mốc
     if (!nextRun) {
         console.warn('[CMD] No schedule found → create new one');
         nextRun = setNextRunTime();
     }
 
     while (true) {
-        const now = Date.now();
-
-        if (now >= nextRun) {
+        if (Date.now() >= nextRun) {
             console.warn('[CMD] Time reached → run pm2');
             runCommand(CMD);
             nextRun = setNextRunTime();
         }
 
-        // check mỗi 5 giây (reload bao nhiêu lần cũng không ảnh hưởng)
+        // check liên tục nhưng nhẹ
         await sleep(5000);
     }
 }
