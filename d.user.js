@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Treo Site + Fake Activity + Auto Reload + PM2 Loop
 // @namespace    https://tampermonkey.net/
-// @version      6.0
+// @version      36
 // @description  Fake activity luôn chạy, reset 10 lần, phút 9 chạy pm2, phút 10 reload, lặp vô hạn
 // @match        *://*/*
 // @grant        none
