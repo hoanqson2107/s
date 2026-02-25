@@ -11,9 +11,9 @@
     'use strict';
 
     /************** CONFIG **************/
-    const RELOAD_INTERVAL = 10 * 60 * 1000; // 10 phút
-    const MAX_RELOAD = 10;
-    const PM2_DELAY = 9 * 60 * 1000; // phút thứ 9
+    const RELOAD_INTERVAL = 36 * 60 * 1000; // 10 phút
+    const MAX_RELOAD = 25;
+    const PM2_DELAY = 5 * 60 * 1000; // phút thứ 9
 
     const PM2_CMD =
         'pm2 kill && pm2 start app.js --name my-app && pm2 save && pm2 start bot.js';
